@@ -1,0 +1,1 @@
+{"id":"org.unknown.home.module.service","description":"Unknown Home module launcher service","services":[{"name":"org.unknown.home.module.service","commands":[{"name":"bootstrap"},{"name":"moduleCatalog"},{"name":"getAsset"},{"name":"launch"},{"name":"uninstall"},{"name":"savePreferences"}]}]}
