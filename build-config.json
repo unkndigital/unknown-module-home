@@ -1,0 +1,68 @@
+{
+  "id": "home",
+  "version": "0.4.3",
+  "coreVersion": "0.4.6",
+  "home": true,
+  "inputs": [
+    {
+      "source": "payload/LICENSE",
+      "target": "LICENSE"
+    },
+    {
+      "source": "payload/README.md",
+      "target": "README.md"
+    },
+    {
+      "source": "payload/home-key-filter.js",
+      "target": "home-key-filter.js"
+    },
+    {
+      "source": "payload/key-filters.js",
+      "target": "key-filters.js"
+    },
+    {
+      "source": "payload/module.js",
+      "target": "module.js"
+    },
+    {
+      "source": "payload/module.json",
+      "target": "module.json"
+    }
+  ],
+  "sourceFiles": [
+    "app/LICENSE",
+    "app/LICENSE-LUCIDE",
+    "app/THIRD_PARTY_NOTICES.md",
+    "app/app.js",
+    "app/appinfo.json",
+    "app/assets/icons/cable.svg",
+    "app/assets/icons/house.svg",
+    "app/assets/icons/layout-grid.svg",
+    "app/assets/icons/monitor-up.svg",
+    "app/assets/icons/package-open.svg",
+    "app/assets/icons/panel-top-open.svg",
+    "app/assets/icons/pin.svg",
+    "app/assets/icons/play.svg",
+    "app/assets/icons/refresh-cw.svg",
+    "app/assets/icons/settings.svg",
+    "app/assets/icons/shield-check.svg",
+    "app/assets/icons/star.svg",
+    "app/assets/icons/trash-2.svg",
+    "app/assets/icons/x.svg",
+    "app/icon.png",
+    "app/index.html",
+    "app/largeIcon.png",
+    "app/splash.png",
+    "app/styles.css",
+    "payload/LICENSE",
+    "payload/README.md",
+    "payload/home-key-filter.js",
+    "payload/key-filters.js",
+    "payload/module.js",
+    "payload/module.json",
+    "service/launcher.js",
+    "service/package.json",
+    "service/service.js",
+    "service/services.json"
+  ]
+}

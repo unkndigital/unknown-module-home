@@ -1,0 +1,20 @@
+{
+  "name": "unknown-module-home",
+  "version": "0.4.3",
+  "private": true,
+  "description": "App grid, favorites, inputs and optional physical Home-button routing. Installs a separate Home application; Core remains the independent recovery manager.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node build.js --check",
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "yauzl": "3.4.0",
+    "yazl": "3.3.1",
+    "acorn": "8.18.0",
+    "@webos-tools/cli": "3.2.5"
+  }
+}
