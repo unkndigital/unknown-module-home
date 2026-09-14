@@ -1,0 +1,17 @@
+{
+  "id": "org.unknown.home.module",
+  "version": "0.4.3",
+  "vendor": "Unknown Suite",
+  "type": "web",
+  "main": "index.html",
+  "title": "Unknown Home",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "iconColor": "#0f1214",
+  "splashBackground": "splash.png",
+  "defaultWindowType": "card",
+  "disableBackHistoryAPI": true,
+  "handlesRelaunch": true,
+  "noSplashOnLaunch": true,
+  "inspectable": false
+}

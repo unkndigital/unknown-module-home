@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Unknown Home</title>
+    <link rel="stylesheet" href="styles.css">
+    
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <aside class="rail" aria-label="Navigation">
+        <div class="brand" aria-label="Unknown Home">
+          <img class="brand-mark" src="icon.png" alt="">
+          <span class="brand-name">Unknown</span>
+        </div>
+
+        <nav class="rail-nav">
+          <button class="rail-button is-active" data-view-target="home" data-focusable title="Home">
+            <img src="assets/icons/house.svg" alt="">
+            <span>Home</span>
+          </button>
+          <button class="rail-button" data-view-target="apps" data-focusable title="Apps">
+            <img src="assets/icons/layout-grid.svg" alt="">
+            <span>Apps</span>
+          </button>
+          <button class="rail-button" data-view-target="inputs" data-focusable title="Inputs">
+            <img src="assets/icons/cable.svg" alt="">
+            <span>Inputs</span>
+          </button>
+          <button class="rail-button" data-view-target="moduleApps" data-focusable title="Module Apps">
+            <img src="assets/icons/package-open.svg" alt="">
+            <span>Module Apps</span>
+          </button>
+          <button class="rail-button" data-view-target="system" data-focusable title="System">
+            <img src="assets/icons/shield-check.svg" alt="">
+            <span>System</span>
+          </button>
+          <button id="openCore" class="rail-button" data-focusable title="Unknown Core"><img src="assets/icons/package-open.svg" alt=""><span>Core</span></button>
+        </nav>
+
+        <button id="stockHomeRailButton" class="rail-button rail-stock-home" data-focusable title="LG Home">
+          <img src="assets/icons/panel-top-open.svg" alt="">
+          <span>LG Home</span>
+        </button>
+        <button class="rail-button rail-settings" data-view-target="system" data-focusable title="Settings">
+          <img src="assets/icons/settings.svg" alt="">
+          <span>Settings</span>
+        </button>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="viewEyebrow">Unknown Home</p>
+            <h1 id="viewTitle">Home</h1>
+          </div>
+          <div class="topbar-status">
+            <button id="refreshButton" class="icon-button" data-focusable title="Refresh">
+              <img src="assets/icons/refresh-cw.svg" alt="">
+            </button>
+            <div id="guardBadge" class="status-badge" aria-live="polite">
+              <span class="status-dot"></span>
+              <span>Connecting</span>
+            </div>
+            <time id="clock" class="clock">--:--</time>
+          </div>
+        </header>
+
+        <section class="view is-active" data-view="home" aria-label="Home">
+          <section id="preview" class="preview-band" aria-live="polite">
+            <img id="previewImage" class="preview-image" src="splash.png" alt="" decoding="async">
+            <div class="preview-shade"></div>
+            <img id="previewBackdropIcon" class="preview-backdrop-icon" src="icon.png" alt="" decoding="async">
+            <div class="preview-content">
+              <div class="preview-kicker">
+                <img id="previewIcon" class="preview-icon" src="icon.png" alt="" decoding="async">
+                <p id="previewMeta" class="preview-meta">Unknown Home</p>
+                <span id="previewLoading" class="preview-loading" hidden aria-hidden="true"></span>
+              </div>
+              <h2 id="previewTitle">Loading apps</h2>
+              <p id="previewDescription" class="preview-description">Preparing your TV.</p>
+              <div class="preview-actions">
+                <button id="launchSelected" class="command-button primary" data-focusable>
+                  <img src="assets/icons/play.svg" alt="">
+                  <span>Open</span>
+                </button>
+                <button id="favoriteSelected" class="icon-button large" data-focusable title="Add to favorites">
+                  <img src="assets/icons/star.svg" alt="">
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="content-section" aria-labelledby="favoritesHeading">
+            <div class="section-heading">
+              <h2 id="favoritesHeading">Favorites</h2>
+              <span id="favoritesCount" class="section-count">0</span>
+            </div>
+            <div id="favoritesRow" class="tile-row"></div>
+          </section>
+
+          <section class="content-section" aria-labelledby="recentHeading">
+            <div class="section-heading">
+              <h2 id="recentHeading">Recent</h2>
+              <span id="recentCount" class="section-count">0</span>
+            </div>
+            <div id="recentRow" class="tile-row"></div>
+          </section>
+
+          <section class="content-section" aria-labelledby="quickInputsHeading">
+            <div class="section-heading">
+              <h2 id="quickInputsHeading">Inputs</h2>
+              <span id="inputSummary" class="section-count">Checking</span>
+            </div>
+            <div id="quickInputsRow" class="input-row"></div>
+          </section>
+        </section>
+
+        <section class="view" data-view="apps" aria-label="Apps">
+          <div class="view-toolbar">
+            <div id="appFilters" class="segmented-control" aria-label="App source">
+              <button class="is-selected" data-app-filter="all" data-focusable>All</button>
+              <button data-app-filter="store" data-focusable>Store</button>
+              <button data-app-filter="system" data-focusable>System</button>
+              <button data-app-filter="homebrew" data-focusable>Homebrew</button>
+            </div>
+            <button id="appsFavoriteToggle" class="command-button secondary" data-focusable>
+              <img src="assets/icons/star.svg" alt="">
+              <span>Favorite</span>
+            </button>
+          </div>
+          <div id="appsGrid" class="app-grid"></div>
+        </section>
+
+        <section class="view" data-view="inputs" aria-label="Inputs">
+          <div id="inputsGrid" class="input-grid"></div>
+        </section>
+        <section class="view" data-view="moduleApps" aria-label="Module Apps">
+          <div id="moduleAppsGrid" class="app-grid"></div>
+        </section>
+
+        
+
+        
+
+        
+
+        
+
+        <section class="view" data-view="system" aria-label="System">
+          <div class="system-layout">
+            
+
+            
+
+            <section class="system-panel" aria-labelledby="displayHeading">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Display</p>
+                  <h2 id="displayHeading">Launcher layout</h2>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <strong>Tile density</strong>
+                  <span>App and favorite rows</span>
+                </div>
+                <div id="densityControl" class="segmented-control compact" aria-label="Tile density">
+                  <button data-density="comfortable" data-focusable>Comfortable</button>
+                  <button data-density="compact" data-focusable>Compact</button>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <strong>Store shortcuts</strong>
+                  <span>Show launch-to-install entries</span>
+                </div>
+                <button id="stubsToggle" class="toggle" role="switch" aria-checked="true" data-focusable title="Toggle store shortcuts">
+                  <span></span>
+                </button>
+              </div>
+            </section>
+
+            <section class="system-panel" aria-labelledby="tvSettingsHeading">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">webOS</p>
+                  <h2 id="tvSettingsHeading">TV controls</h2>
+                </div>
+              </div>
+              
+              
+              <div class="command-row">
+                <button id="stockHomeButton" class="command-button secondary" data-focusable>
+                  <img src="assets/icons/panel-top-open.svg" alt="">
+                  <span>LG Home</span>
+                </button>
+                <button id="tvSettingsButton" class="command-button secondary" data-focusable>
+                  <img src="assets/icons/settings.svg" alt="">
+                  <span>TV Settings</span>
+                </button>
+                <button id="homebrewButton" class="command-button secondary" data-focusable>
+                  <img src="assets/icons/package-open.svg" alt="">
+                  <span>Homebrew</span>
+                </button>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="contextScrim" class="context-scrim" hidden>
+      <aside id="contextSheet" class="context-sheet" role="dialog" aria-modal="true" aria-labelledby="contextTitle">
+        <header class="context-header">
+          <img id="contextIcon" class="context-icon" src="icon.png" alt="">
+          <div>
+            <p id="contextMeta" class="eyebrow">Application</p>
+            <h2 id="contextTitle">App options</h2>
+          </div>
+          <button id="contextClose" class="icon-button" data-focusable title="Close">
+            <img src="assets/icons/x.svg" alt="">
+          </button>
+        </header>
+
+        <dl id="contextDetails" class="context-details">
+          <div><dt>Version</dt><dd id="contextVersion">-</dd></div>
+          <div><dt>Type</dt><dd id="contextType">-</dd></div>
+          <div><dt>App ID</dt><dd id="contextAppId">-</dd></div>
+        </dl>
+
+        <div id="contextActions" class="context-actions">
+          <button id="contextOpen" class="context-action primary" data-focusable>
+            <img src="assets/icons/play.svg" alt="">
+            <span><strong>Open</strong><small>Launch this app</small></span>
+          </button>
+          <button id="contextFavorite" class="context-action" data-focusable>
+            <img src="assets/icons/star.svg" alt="">
+            <span><strong>Favorite</strong><small>Add to the Home screen</small></span>
+          </button>
+          <button id="contextPin" class="context-action" data-focusable>
+            <img src="assets/icons/pin.svg" alt="">
+            <span><strong>Pin first</strong><small>Move to the front of Favorites</small></span>
+          </button>
+          <button id="contextUninstall" class="context-action danger" data-focusable>
+            <img src="assets/icons/trash-2.svg" alt="">
+            <span><strong>Uninstall</strong><small id="contextUninstallDetail">Remove from this TV</small></span>
+          </button>
+        </div>
+
+        <div id="contextConfirm" class="context-confirm" hidden>
+          <p class="eyebrow">Confirm uninstall</p>
+          <h3>Remove <span id="contextConfirmTitle">this app</span>?</h3>
+          <p>This removes the app and its local application data. You can install it again later.</p>
+          <div class="command-row">
+            <button id="contextCancelUninstall" class="command-button secondary" data-focusable>Cancel</button>
+            <button id="contextConfirmUninstall" class="command-button danger" data-focusable>
+              <img src="assets/icons/trash-2.svg" alt="">
+              <span>Uninstall</span>
+            </button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    
+    <script src="app.js"></script>
+  </body>
+</html>
