@@ -1,13 +1,56 @@
 {
-  "schemaVersion":1,"id":"home","version":"0.4.3","minCoreVersion":"0.4.5",
-  "title":"Unknown Home","description":"App grid, favorites, inputs and optional physical Home-button routing. Installs a separate Home application; Core remains the independent recovery manager.",
-  "disableDescription":"Removes this module's Home-button routing and closes Unknown Home if it is in the foreground. The installed Home app and its preferences remain. Home-button routing is saved as OFF and must be explicitly enabled again later.",
-  "publisher":"Unknown Digital and Unknown Suite contributors","license":"MIT","requiresRoot":true,"entry":"module.js",
-  "permissions":["Installs the bundled org.unknown.home.module application and elevates its launcher service using the existing Homebrew helper", "Optional volatile surface-manager Home-key filter; no firmware or Developer Mode marker changes", "Reads installed apps and inputs; owner actions can launch or uninstall apps and save favorites"],
-  "actions":{
-    "status":{"title":"Check Home module","description":"Shows whether the Home app is installed, routing is saved as ON and the key filter is present. The physical remote still needs an owner test; this check does not press Home.","readOnly":true,"parameters":{}},
-    "health":{"title":"Check Home health","description":"Checks the installed Home app and any requested Home-key filter. It does not prove that every remote or TV model delivers the physical key correctly.","readOnly":true,"parameters":{}},
-    "openHome":{"title":"Open Unknown Home","description":"Launches your installed Unknown Home screen now. It does not change which screen the remote Home button opens.","readOnly":false,"parameters":{}},
-    "setHomeButton":{"title":"Home button override","description":"Changes the supported remote Home-key route without replacing LG firmware. The LG Home command inside Unknown Home remains available as a fallback.","readOnly":false,"parameters":{"enabled":{"type":"boolean","title":"Home-button routing","currentValue":{"path":["homeButton"]},"description":"ON routes the physical Home button to Unknown Home. OFF removes this module's route so the TV's normal Home behavior resumes."}}}
-  }
+  "schemaVersion": 1,
+  "id": "home",
+  "version": "0.5.0",
+  "minCoreVersion": "0.8.0",
+  "title": "Unknown Home",
+  "description": "App grid, favorites, inputs and optional physical Home-button routing. Installs a separate Home application; Core remains the independent recovery manager.",
+  "disableDescription": "Removes this module's Home-button routing and closes Unknown Home if it is in the foreground. The installed Home app and its preferences remain. Home-button routing is saved as OFF and must be explicitly enabled again later.",
+  "publisher": "Unknown Digital and Unknown Suite contributors",
+  "license": "MIT",
+  "requiresRoot": true,
+  "entry": "module.js",
+  "permissions": [
+    "Installs the bundled org.unknown.home.module application and elevates its launcher service using the existing Homebrew helper",
+    "Optional volatile surface-manager Home-key filter; no firmware or Developer Mode marker changes",
+    "Reads installed apps and inputs; owner actions can launch or uninstall apps and save favorites"
+  ],
+  "actions": {
+    "status": {
+      "title": "Check Home module",
+      "description": "Shows whether the Home app is installed, routing is saved as ON and the key filter is present. The physical remote still needs an owner test; this check does not press Home.",
+      "readOnly": true,
+      "parameters": {}
+    },
+    "health": {
+      "title": "Check Home health",
+      "description": "Checks the installed Home app and any requested Home-key filter. It does not prove that every remote or TV model delivers the physical key correctly.",
+      "readOnly": true,
+      "parameters": {}
+    },
+    "openHome": {
+      "title": "Open Unknown Home",
+      "description": "Launches your installed Unknown Home screen now. It does not change which screen the remote Home button opens.",
+      "readOnly": false,
+      "parameters": {}
+    },
+    "setHomeButton": {
+      "title": "Home button override",
+      "description": "Changes the supported remote Home-key route without replacing LG firmware. The LG Home command inside Unknown Home remains available as a fallback.",
+      "readOnly": false,
+      "parameters": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Home-button routing",
+          "currentValue": {
+            "path": [
+              "homeButton"
+            ]
+          },
+          "description": "ON routes the physical Home button to Unknown Home. OFF removes this module's route so the TV's normal Home behavior resumes."
+        }
+      }
+    }
+  },
+  "updateStrategy": "enable"
 }

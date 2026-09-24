@@ -33,6 +33,10 @@
   var suppressTileClickUntil = 0;
   var lastDirection = "";
   var lastDirectionAt = 0;
+  var catalogRefresh = null;
+  var catalogRefreshAt = 0;
+  var appUpdates = {}, updateSources = {}, updateBusy = false, updateCheckedAt = 0;
+  var updateSourcesLoaded = false, updateSourceError = false;
 
   var state = {
 backend: false,
@@ -269,6 +273,7 @@ preferences: stored.preferences || {}
     return lunaCall(SERVICE + "bootstrap", {}, 15000)
       .then(function (result) {
         applyBootstrap(result, true);
+        refreshUpdates();
         setGuardBadge(result.elevated ? "healthy" : "warning", result.elevated ? "Root service" : "Launcher only");
         if (showNotice) {
           showToast("Launcher refreshed");
@@ -289,6 +294,44 @@ preferences: stored.preferences || {}
           }
         });
       });
+  }
+
+  function refreshAppCatalog() {
+    if (!state.backend || document.hidden || catalogRefresh || Date.now() - catalogRefreshAt < 2000) return;
+    catalogRefreshAt = Date.now();
+    catalogRefresh = lunaCall(SERVICE + "appCatalog", {}, 15000).then(function (result) {
+      if (!Array.isArray(result.apps)) return;
+      var next = result.apps.map(normalizeApp).filter(function(app){return app.id && app.id !== "org.unknown.home.module";});
+      if (JSON.stringify(state.apps) === JSON.stringify(next)) return;
+      var current = document.activeElement;
+      var currentId = current && current.getAttribute("data-app-id");
+      var parentId = current && current.parentElement && current.parentElement.id;
+      state.apps = next;
+      appById = {};
+      state.apps.forEach(function (app) { appById[app.id] = app; });
+      if (!findApp(selectedAppId)) selectedAppId = firstSelectableAppId();
+      renderAll();
+      if (currentId && parentId && $(parentId)) {
+        var replacement = Array.prototype.find.call($(parentId).querySelectorAll("[data-app-id]"), function (node) { return node.getAttribute("data-app-id") === currentId; });
+        focusElement(replacement || $(parentId).querySelector("[data-focusable]"));
+      }
+      hydrateVisibleAssets();
+    }).catch(function (error) { console.warn("Home app inventory refresh failed", error.message); }).then(function () { catalogRefresh = null; refreshUpdates(); });
+  }
+
+  function paintUpdateBadges() {
+    Array.prototype.forEach.call(document.querySelectorAll(".app-update-badge"),function(badge){var info=appUpdates[badge.getAttribute("data-update-id")];badge.hidden=!(info&&info.status==="update-available");badge.title=info&&info.latestVersion?"Update available: "+info.latestVersion:"";});
+    if(contextIsOpen())updateContextMenu();
+  }
+  function refreshUpdates() {
+    if(!state.backend||document.hidden||updateBusy||Date.now()-updateCheckedAt<60000)return;
+    updateBusy=true;updateCheckedAt=Date.now();
+    lunaCall(SERVICE+"updateSources",{},15000).then(function(result){
+      updateSources={};updateSourcesLoaded=true;updateSourceError=false;var queue=(result.sources||[]).slice();queue.forEach(function(item){updateSources[item.id]=true;});
+      Object.keys(appUpdates).forEach(function(id){if(!updateSources[id]||!findApp(id))delete appUpdates[id];});paintUpdateBadges();
+      function next(){if(!queue.length||document.hidden)return Promise.resolve();var item=queue.shift();return lunaCall(SERVICE+"checkAppUpdate",{id:item.id},30000).then(function(result){appUpdates[item.id]=result.update;}).catch(function(){appUpdates[item.id]={status:"unknown"};}).then(function(){paintUpdateBadges();return next();});}
+      return next();
+    }).catch(function(error){updateSourceError=true;updateCheckedAt=Date.now()-55000;console.warn("Home update check unavailable",error.message);}).then(function(){updateBusy=false;if(contextIsOpen())updateContextMenu();});
   }
 
   function setGuardBadge(mode, text) {
@@ -320,6 +363,7 @@ preferences: stored.preferences || {}
     return [
       '<button class="app-tile" data-focusable data-nav-index="', index, '" data-app-id="', escapeHtml(app.id), '">',
       '<span class="app-source ', escapeHtml(app.source), '"></span>',
+      '<span class="app-update-badge" data-update-id="', escapeHtml(app.id), '"', appUpdates[app.id]&&appUpdates[app.id].status==="update-available"?'':' hidden', '>Update</span>',
       '<span class="app-icon-wrap">',
       '<img class="app-icon" src="', escapeHtml(fallback), '" alt="" data-app-asset="', escapeHtml(app.id), '">',
       "</span>",
@@ -906,6 +950,9 @@ preferences: stored.preferences || {}
     if (!isGrid || (direction !== "up" && direction !== "down")) {
       return undefined;
     }
+    if (group.id === "appsGrid" && direction === "up" && navIndex(current, group) < gridColumnCount(group)) {
+      return document.querySelector('[data-app-filter].is-selected') || document.querySelector('[data-app-filter]');
+    }
     return gridTarget(group, current, direction);
   }
 
@@ -1072,6 +1119,10 @@ preferences: stored.preferences || {}
       ? "Remove from the Home screen"
       : "Add to the Home screen";
     $("contextPin").disabled = state.favorites[0] === app.id;
+    var update=appUpdates[app.id];
+    $("contextUpdate").disabled=!state.backend||!updateSources[app.id];
+    $("contextUpdate").querySelector("strong").textContent=update&&update.status==="update-available"?"Update":"Check for updates";
+    $("contextUpdateDetail").textContent=!updateSources[app.id]?(updateSourceError?"Source check unavailable. Reopen this menu to retry.":!updateSourcesLoaded?"Checking update sources...":"No known GitHub update source"):update&&update.status==="update-available"?"Version "+update.latestVersion+" is available. Review it in Core.":update&&update.status==="up-to-date"?"Version "+app.version+" is current. Check releases in Core.":"Review the latest GitHub release in Core.";
     $("contextUninstall").disabled = !state.backend || !app.removable;
     $("contextUninstallDetail").textContent = app.removable
       ? "Remove from this TV"
@@ -1098,6 +1149,7 @@ preferences: stored.preferences || {}
     resetContextConfirm();
     updateContextMenu();
     $("contextScrim").hidden = false;
+    refreshUpdates();
     setTimeout(function () {
       focusElement($("contextOpen"));
     }, 20);
@@ -1325,7 +1377,7 @@ preferences: stored.preferences || {}
     window.addEventListener("blur", function () { endTileHold(false); });
     document.addEventListener("visibilitychange", function () {
       endTileHold(false);
-      if (!document.hidden) hideLaunchCursor();
+      if (!document.hidden) { hideLaunchCursor(); refreshAppCatalog(); }
     });
 
     document.addEventListener("focusin", function (event) {
@@ -1353,6 +1405,7 @@ preferences: stored.preferences || {}
     });
     $("contextFavorite").addEventListener("click", toggleContextFavorite);
     $("contextPin").addEventListener("click", pinContextFavorite);
+    $("contextUpdate").addEventListener("click",function(){var id=contextAppId;lunaCall(SERVICE+"openAppUpdate",{id:id},15000).then(closeContextMenu).catch(function(error){showToast(error.message,true);});});
     $("contextUninstall").addEventListener("click", promptContextUninstall);
     $("contextCancelUninstall").addEventListener("click", function () {
       resetContextConfirm();
@@ -1539,6 +1592,7 @@ preferences: stored.preferences || {}
       }
     }
     hideLaunchCursor();
+    refreshAppCatalog();
   });
   document.addEventListener("DOMContentLoaded", init);
 }());

@@ -1,6 +1,6 @@
 {
   "id": "org.unknown.home.module",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "vendor": "Unknown Suite",
   "type": "web",
   "main": "index.html",

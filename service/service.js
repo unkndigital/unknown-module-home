@@ -5,6 +5,9 @@ const launcher = require("./launcher");
 
 const service = launcher.service;
 const APP_ID = launcher.APP_ID;
+const CORE="/media/developer/apps/usr/palm/services/org.unknown.core.service/";
+let updateChecker;
+async function updateSources(){return require(CORE+"update-sources").known(require(CORE+"module-store").createStore());}
 
 function input(message, fields) {
   const value = launcher.payloadObject(message);
@@ -28,9 +31,23 @@ register("bootstrap", false, async message => {
   input(message, []);
   const apps = launcher.scanApps(), icons = launcher.cacheAppIcons(apps), cards=moduleCards(), config = launcher.loadConfig(apps.concat(cards));
   const results = await Promise.all([launcher.getInputs(), launcher.getRecentIds(apps)]);
-  return { serviceVersion:"0.4.3", elevated:launcher.elevated(), apps:launcher.publicApps(apps,icons).concat(cards), inputs:results[0], recentIds:results[1], favorites:config.favorites, preferences:config.preferences };
+  return { serviceVersion:"0.5.0", elevated:launcher.elevated(), apps:launcher.publicApps(apps,icons).concat(cards), inputs:results[0], recentIds:results[1], favorites:config.favorites, preferences:config.preferences };
 });
 register("moduleCatalog",false,message=>{input(message,[]);return {apps:moduleCards()};});
+register("appCatalog",false,message=>{input(message,[]);const apps=launcher.scanApps();return {apps:launcher.publicApps(apps,launcher.cacheAppIcons(apps)).concat(moduleCards())};});
+register("updateSources",false,async message=>{input(message,[]);const installed=new Set(launcher.scanApps().map(app=>app.id));return {sources:(await updateSources()).filter(item=>installed.has(item.id))};});
+register("checkAppUpdate",false,async message=>{
+  const value=input(message,["id"]),entry=(await updateSources()).find(item=>item.id===value.id);
+  if(!entry||!launcher.scanApps().some(app=>app.id===entry.id))throw Error("Installed app with a known GitHub source required");
+  if(!updateChecker)updateChecker=require(CORE+"app-updates").create();
+  const release=await updateChecker.release(entry.repository,entry.id);
+  return {update:release.applications[0]};
+});
+register("openAppUpdate",false,async message=>{
+  const value=input(message,["id"]),entry=(await updateSources()).find(item=>item.id===value.id);
+  if(!entry||!launcher.scanApps().some(app=>app.id===entry.id))throw Error("Installed app with a known GitHub source required");
+  return {launch:await launcher.serviceCall("luna://com.webos.applicationManager/launch",{id:"org.unknown.core",params:{coreView:"ipkUpdate",appId:entry.id}})};
+});
 function moduleCards(){
   const store=require("/media/developer/apps/usr/palm/services/org.unknown.core.service/module-store").createStore();
   return store.list().filter(row=>row.id!=="home").map(row=>({id:"unknown-module:"+row.id,moduleId:row.id,title:row.manifest?row.manifest.title:row.id,source:"module",type:"module",removable:false,description:(row.quarantined?"Quarantined":row.enabled?"Enabled":"Disabled")+" | "+(row.manifest?row.manifest.description:"Recovery required"),version:row.manifest?row.manifest.version:"",fallbackIcon:"assets/icons/settings.svg"}));

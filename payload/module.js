@@ -8,10 +8,16 @@ function create(options){
   const configFile=path.join(data,"home.json"),filterFile=path.join(payload,"home-key-filter.js");
   function config(){try{return JSON.parse(io.readFileSync(configFile,"utf8"));}catch(error){if(error.code==="ENOENT")return {homeButton:false};throw error;}}
   function save(value){const temporary=configFile+"."+process.pid+".tmp";io.writeFileSync(temporary,JSON.stringify(value),{flag:"wx",mode:0o600});io.renameSync(temporary,configFile);}
-  function installed(){try{return JSON.parse(io.readFileSync(path.join(APP,"appinfo.json"),"utf8")).version==="0.4.3";}catch(_){return false;}}
+  function installed(){try{const info=JSON.parse(io.readFileSync(path.join(APP,"appinfo.json"),"utf8"));return info.id===ID&&info.version==="0.5.0";}catch(_){return false;}}
   async function install(){
     if(installed())return;
-    if(io.existsSync(path.join(APP,"appinfo.json")))throw Error("A different Home module version is installed; explicit upgrade required");
+    if(io.existsSync(path.join(APP,"appinfo.json"))){
+      const previous=JSON.parse(io.readFileSync(path.join(APP,"appinfo.json"),"utf8"));
+      if(previous.id!==ID||!/^\d+\.\d+\.\d+$/.test(previous.version))throw Error("Existing Home app identity/version does not verify");
+      const left=previous.version.split(".").map(Number),right="0.5.0".split(".").map(Number);
+      let difference=0;for(let n=0;n<3&&!difference;n++)difference=left[n]-right[n];
+      if(difference>=0)throw Error("Refusing to downgrade or replace an unexpected Home version");
+    }
     const ipk=path.join(payload,"unknown-home.ipk");if(!io.existsSync(ipk))throw Error("Bundled Home IPK missing");
     if(options&&options.install)await options.install(ipk);else await new Promise((resolve,reject)=>{
       const child=cp.spawn("/usr/bin/luna-send-pub",["-i","-w","30000","luna://com.webos.appInstallService/dev/install",JSON.stringify({id:"unknown.core.home",ipkUrl:ipk,subscribe:true})],{stdio:["ignore","pipe","pipe"]});
